@@ -65,3 +65,7 @@ describe('test example', () => {
     });
   });
 });
+
+describe('isPrime', () => {
+  test('Check if isPrime', number => {});
+});

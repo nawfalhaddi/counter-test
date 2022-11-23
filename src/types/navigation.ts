@@ -7,5 +7,6 @@ declare global {
 }
 
 export type RootStackParamList = {
+  [RouteNames.HomeTestScreen]: undefined;
   [RouteNames.HomeScreen]: undefined;
 };

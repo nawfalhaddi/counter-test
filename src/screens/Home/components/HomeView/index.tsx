@@ -5,21 +5,28 @@ import {RootStackParamList} from '@root/src/types/navigation';
 import {useCreatePost} from '@screens/Home/hooks/useCreatePost';
 import {useGetPosts} from '@screens/Home/hooks/useGetPosts';
 import {useDispatch, useSelector} from '@store';
-import {incrementByAmount} from '@store/counterSlice';
-import {Button} from '@ui/components/Button/Button';
+import {decrement, increment} from '@store/counterSlice';
 import {horizontalScale, verticalScale} from '@ui/theme/scaling';
 import {styled} from '@ui/theme/styled-components';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {
   Alert,
-  I18nManager,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import RNRestart from 'react-native-restart';
+
+const isPrime = (num: number) => {
+  for (let i = 2, s = Math.sqrt(num); i <= s; i++) {
+    if (num % i === 0) {
+      return false;
+    }
+  }
+  return num > 1;
+};
 
 export interface HomeViewProps
   extends NativeStackScreenProps<RootStackParamList, RouteNames.HomeScreen> {}
@@ -52,90 +59,36 @@ export default function HomeView({navigation}: HomeViewProps) {
   return (
     <Root contentContainerStyle={styles.contentContainerStyle}>
       <Title>Redux example</Title>
-      <Description>Implementation of redux</Description>
-      <Description> Value: {value}</Description>
-      <Button
-        text="+ Increment by one "
-        onPress={() => {
-          dispatch(incrementByAmount(1));
-        }}
-      />
-      <Separator />
-      <Title>React query example: Query</Title>
-      <Description>
-        Implementation of react query with typescript supported: fetching data
-      </Description>
-      <Description>
-        Query loading state: {String(postsQuery?.isLoading)}
-      </Description>
-      <Description>
-        Query fetching state: {String(postsQuery?.isFetching)}
-      </Description>
-      <Description>
-        Query Data state: {'\n'} title: {postsQuery?.data?.[0]?.title} {'\n'}
-        id: {postsQuery?.data?.[0]?.id}
-      </Description>
-      <Button text="Refetch data" onPress={postsQuery.refetch} />
 
-      <Separator />
+      <Container>
+        <CustomButton
+          onPress={() => {
+            dispatch(decrement());
+          }}
+        >
+          <Text style={{color: 'white', fontSize: 40, textAlign: 'center'}}>
+            -
+          </Text>
+        </CustomButton>
 
-      <Title>React query example: Mutation</Title>
+        <Description> {value}</Description>
 
-      <Description>
-        Implementation of react query with typescript supported: Posting data
-      </Description>
-      <Description>
-        Query loading state: {String(createPostMutation?.isLoading)}
-      </Description>
-      <Description>
-        Query isSuccess state: {String(createPostMutation?.isSuccess)}
-      </Description>
-      <Description>
-        Query isError state: {String(createPostMutation?.isError)}
-      </Description>
-      <Description>
-        Query Data state: {'\n'} title: {postsQuery?.data?.[0]?.title} {'\n'}
-        id: {postsQuery?.data?.[0]?.id}
-      </Description>
+        <CustomButton
+          onPress={() => {
+            dispatch(increment());
+          }}
+        >
+          <Text style={{color: 'white', fontSize: 40, textAlign: 'center'}}>
+            +
+          </Text>
+        </CustomButton>
+      </Container>
 
-      <Button
-        text="Create a post"
-        onPress={() => {
-          createPostMutation.mutate(
-            {
-              body: 'Lorem Ipsum body content',
-              title: 'Title',
-              userId: 1,
-            },
-            {
-              onSuccess(data) {
-                triggerAlert('Request sent successfully', JSON.stringify(data));
-              },
-              onError(error) {
-                triggerAlert('Request failed ', error?.toString());
-              },
-            },
-          );
-        }}
-      />
-
-      <Separator />
-
-      <Title>Translation example</Title>
-
-      <Description>{t('txt_welcome_to_rn_by_nh')}</Description>
-
-      <Button
-        text={t('txt_change_language')}
-        onPress={() =>
-          i18n
-            .changeLanguage(i18n.language === 'ar' ? 'en' : 'ar')
-            .then(async () => {
-              await I18nManager.forceRTL(i18n.dir() === 'rtl');
-            })
-            .then(() => RNRestart.Restart())
-        }
-      />
+      <Container>
+        <Description>
+          {`${value} ${isPrime(value) ? 'is prime' : 'is not prime'}`}
+        </Description>
+      </Container>
     </Root>
   );
 }
@@ -152,15 +105,31 @@ const Root = styled(ScrollView)(({theme: {spacingValues, colors}}) => ({
   backgroundColor: colors.orange200,
 }));
 
+const CustomButton = styled(TouchableOpacity)(
+  ({theme: {spacingValues, colors}}) => ({
+    marginBottom: spacingValues.v2xl,
+    height: 50,
+    width: 50,
+    backgroundColor: 'blue',
+  }),
+);
+const Container = styled(View)(({theme: {spacingValues, colors}}) => ({
+  flexDirection: 'row',
+  alignItems: 'center',
+  width: '80%',
+  justifyContent: 'space-between',
+}));
+
 const Title = styled(Text)(({theme: {spacingValues, textType}}) => ({
   ...textType.BodyLgBold,
   textAlign: 'left',
 }));
 
 const Description = styled(Text)(({theme: {spacingValues, textType}}) => ({
-  ...textType.BodySm,
   marginBottom: spacingValues.vMd,
-  textAlign: 'left',
+  fontSize: 30,
+  textAlign: 'center',
+  width: '70%',
 }));
 
 const Separator = styled(View)(({theme: {spacingValues, colors}}) => ({
